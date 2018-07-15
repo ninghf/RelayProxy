@@ -66,33 +66,6 @@
         </el-tag>
       </el-col>
     </el-row>
-    {{stats}}
-    <el-table
-      :data="stats"
-      style="width: 100%"
-      max-height="250">
-      <el-table-column
-        prop="name"
-        label="统计项">
-      </el-table-column>
-      <el-table-column
-        prop="value"
-        label="统计值">
-      </el-table-column>
-      <el-table-column
-        fixed="right"
-        label="操作"
-        width="120">
-        <template slot-scope="scope">
-          <el-button
-            @click.native.prevent="deleteRow(scope.$index, stats)"
-            type="text"
-            size="small">
-            移除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
     <el-row>
       <el-col :span="24">
         <div id="delayed" style="width: auto;height: 400px;"></div>
@@ -107,10 +80,10 @@
     data() {
       return {
         form: {
-          StartTime: new Date(2018, 6, 13, 15, 58, 49, 0),
-          EndTime: new Date(2018, 6, 13, 16, 0, 49, 0),
+          StartTime: new Date(2018, 6, 11, 14, 14, 49, 0),
+          EndTime: new Date(2018, 6, 11, 14, 15, 49, 0),
           TransTime: 90,
-          SuperSocketID: '11811295409737206439',
+          SuperSocketID: '5077125599905311386',
           IsDetail: false,
           Limit: 500,
           Pagination: {
@@ -122,23 +95,28 @@
         echarts: null,
         series: [],
         axis: null,
-        stats: null,
       }
     },
     methods: {
       getData() {
         this.$http.post('/delayed', {
           data: this.form,
-        }).then(({data: {time, status, echartsOption, axis, stats, total}}) => {
+        }).then(({data: {time, status, echartsOption, axis, total}}) => {
           this.axis = axis;
-          this.stats = stats;
           this.form.Pagination.Total = total;
+          if (this.echarts != null) {
+            this.echarts.clear();
+          }
           if (echartsOption.dataset.length == 0) {
             this.notifyWarn();
             this.form.Pagination.Total = 0;
           } else {
             this.notifySuccess(echartsOption.dataset.length);
+            this.initEcharts('delayed');
             this.data = echartsOption.dataset;
+            let length = echartsOption.dataset.length < this.form.Limit ? echartsOption.dataset.length : this.form.Limit;
+            this.createSeries(0, length, this.form.IsDetail);
+            this.echarts.setOption(this.createOption());
           }
         });
       },
@@ -163,15 +141,6 @@
           // console.log(this.data);
           // console.log(this.series);
         });
-      },
-      showAxis(dataset) {
-        if (this.echarts != null) {
-          this.echarts.clear();
-        }
-        this.initEcharts('delayed');
-        let length = dataset.length < this.form.Limit ? dataset.length : this.form.Limit;
-        this.createSeries(0, length, this.form.IsDetail);
-        this.echarts.setOption(this.createOption());
       },
       appendData(src, dst) {
         for (let i = 0; i < src.length; i++) {
