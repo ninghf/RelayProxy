@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
-import RelayProxy from '@/components/RelayProxyDataAnalyses'
+import DataAnalyses from '@/components/DataAnalyses'
 
 Vue.use(Router)
 
@@ -14,8 +14,8 @@ export default new Router({
     },
     {
       path: '/analyses',
-      name: 'RelayProxy',
-      component: RelayProxy
+      name: 'DataAnalyses',
+      component: DataAnalyses
     }
   ]
 })

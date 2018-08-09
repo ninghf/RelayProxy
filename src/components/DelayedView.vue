@@ -80,10 +80,10 @@
     data() {
       return {
         form: {
-          StartTime: new Date(2018, 6, 11, 14, 14, 49, 0),
-          EndTime: new Date(2018, 6, 11, 14, 15, 49, 0),
+          StartTime: new Date(2018, 6, 13, 15, 58, 49, 0),
+          EndTime: new Date(2018, 6, 13, 16, 0, 49, 0),
           TransTime: 90,
-          SuperSocketID: '5077125599905311386',
+          SuperSocketID: '11811295409737206439',
           IsDetail: false,
           Limit: 500,
           Pagination: {
