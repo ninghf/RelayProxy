@@ -18,7 +18,7 @@
               <!--Table-column Scoped Slot 自定义列的内容，参数为 { row, column, $index }-->
               <template slot-scope="scope">
                 <el-popover trigger="hover" placement="bottom">
-                  <span>pathId: {{ scope.row.tooltips }}</span>
+                  <span>associatesId: {{ scope.row.tooltips }}</span>
                   <!--reference	触发 Popover 显示的 HTML 元素-->
                   <div slot="reference">
                     <el-tag size="medium">{{ scope.row.stat }}</el-tag>
@@ -95,8 +95,8 @@
     </el-carousel-item>
     <el-carousel-item label="数据包落点追踪">
       <el-row>
-        <el-button type="info">数据包范围 1-1000</el-button>
-        <el-button type="info">下面数据包没有展示失败数据包</el-button>
+        <el-button type="info">数据包范围: {{min}} - {{max}}</el-button>
+        <el-button type="info">下面数据包没有展示【发送失败】数据包</el-button>
       </el-row>
       <el-row>
         <el-table v-if="zoomTable" :data="zoomTable" stripe style="width: 100%">
@@ -111,7 +111,7 @@
             align="left">
             <template slot-scope="scope">
               <div slot="reference">
-                <el-button-group v-if="scope.row.slices.length <= 100">
+                <el-button-group v-if="scope.row.slices.length <= 10">
                   <el-button size="mini" type="info" @click="createLines(slice)" v-for="slice in scope.row.slices" :key="slice">{{slice}}</el-button>
                 </el-button-group>
                 <el-button v-else size="mini" type="info">数据内容太多无法显示</el-button>
@@ -141,7 +141,7 @@
       }
     },
     props:[
-      "tablesData", "optionsData", "zoomData"
+      "tablesData", "optionsData", "zoomData", "max", "min"
     ],
     watch: {
       // optionsData: function () {
@@ -248,7 +248,7 @@
             text: "红云融通"
           },
           tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            pointFormat: '{series.name}: {point.y}<b>'+'  百分比: '+'{point.percentage:.1f}%</b>'
           },
           noData: {
             // style: {"fontSize": "12px", "fontWeight": "bold", "color": "blue"},
@@ -294,7 +294,7 @@
             formatter() {
               let extras = this.point.extras;
               let message = '<span>数据包ID：'+extras.packetId+'</span><br>' +
-                '    <span>AgentID：'+extras.pathId+'</span><br>' +
+                '    <span>AgentID：'+extras.associatesId+'</span><br>' +
                 '    <span>重复包：'+extras.repeat+'</span>';
               return message;
             }
@@ -319,7 +319,10 @@
             title: {
               text: '时间轴'
             },
-            type: 'linear'
+            type: 'datetime',
+            // labels: {
+            //   format: '{value: %Y - %b \'%y - %e. %b}'
+            // }
           },
           yAxis: {
             title: {
