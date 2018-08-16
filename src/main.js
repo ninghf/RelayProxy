@@ -12,7 +12,7 @@ import highCharts from 'highcharts';
 import highchartsNoData from 'highcharts/modules/no-data-to-display';
 
 
-axios.defaults.baseURL = 'http://10.160.71.48:8090';
+axios.defaults.baseURL = 'http://192.168.10.41:8090';
 axios.defaults.headers.withCredentials = true;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 highchartsNoData(highCharts);

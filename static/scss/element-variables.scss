@@ -1,7 +1,40 @@
 /* 改变主题色变量 */
-//$--color-primary: blue;
+$--color-primary: #ff8456;
 
 /* 改变 icon 字体路径变量，必需 */
 $--font-path: '~element-ui/lib/theme-chalk/fonts';
 
 @import "~element-ui/packages/theme-chalk/src/index";
+.form__input--normal {
+  width: 80px;
+}
+.el-carousel {
+  overflow-x: hidden;
+  padding-top: 60px;
+  position: relative;
+}
+
+.el-carousel__indicators {
+  list-style: none;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.el-carousel__indicators--outside {
+  top: 10px;
+  text-align: center;
+  position: absolute;
+  -webkit-transform: none;
+  transform: none;
+}
+
+.indicator__button--style .el-carousel__indicators button{
+  color: #fff;
+  background-color: #409eff;
+  border-color: #409eff;
+  border-radius: 20px;
+  padding: 12px 23px;
+}

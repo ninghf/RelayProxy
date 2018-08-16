@@ -68,10 +68,10 @@
         fullScreenLoading: false,
         reason: null,
         form: {
-          StartTime: new Date(2018, 7, 8, 10, 33, 37, 0),
+          StartTime: new Date(2018, 7, 16, 9, 45, 37, 0),
           // EndTime: new Date(2018, 6, 26, 19, 19, 59, 0),
-          EndTime: new Date(2018, 7, 8, 10, 34, 37, 0),
-          SuperSocketID: '17002510156738676654',
+          EndTime: new Date(2018, 7, 16, 9, 47, 37, 0),
+          SuperSocketID: '2797919220570180263',
           TransTime: 300,
           Limit: 500,
           Pagination: {
