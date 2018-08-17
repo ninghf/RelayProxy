@@ -48,7 +48,7 @@
               <el-button type="primary" @click="getData">获取概要信息</el-button>
             </el-form-item>
           </el-form>
-          <SummaryView :tablesData="tablesData" :optionsData="optionsData" :zoomData="zoomData"/>
+          <SummaryView :tablesData="tablesData" :optionsData="optionsData" :zoomData="zoomData" :max="max" :min="min"/>
         </el-tab-pane>
       </el-tabs>
     </el-main>
@@ -82,6 +82,8 @@
         tablesData: null,
         optionsData: null,
         zoomData: null,
+        max: 0,
+        min: 0
       }
     },
     watch: {
@@ -92,11 +94,13 @@
         let loading = Loading.service({fullscreen: true, text: "拼命的加载数据中..."});
         this.$http.post('/summary', {
           data: this.form,
-        }).then(({data: {time, status, total, tables, options, zoom}}) => {
+        }).then(({data: {time, status, total, tables, options, zoom, max, min}}) => {
           if (tables != null && tables.length > 0) {
             this.tablesData = tables;
             this.optionsData = options;
             this.zoomData = zoom;
+            this.max = max;
+            this.min = min;
           }
           loading.close();
         }).catch(error => {

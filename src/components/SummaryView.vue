@@ -18,7 +18,7 @@
               <!--Table-column Scoped Slot 自定义列的内容，参数为 { row, column, $index }-->
               <template slot-scope="scope">
                 <el-popover trigger="hover" placement="bottom">
-                  <span>pathId: {{ scope.row.tooltips }}</span>
+                  <span>associatesId: {{ scope.row.tooltips }}</span>
                   <!--reference	触发 Popover 显示的 HTML 元素-->
                   <div slot="reference">
                     <el-tag size="medium">{{ scope.row.stat }}</el-tag>
@@ -95,26 +95,34 @@
     </el-carousel-item>
     <el-carousel-item label="数据包落点追踪">
       <el-row>
-        <el-button type="info">数据包范围 1-1000</el-button>
-        <el-button type="info">下面数据包没有展示失败数据包</el-button>
+        <el-button type="info">数据包范围 {{min}} - {{max}}</el-button>
+        <el-button type="warning">下面数据包没有展示失败数据包</el-button>
       </el-row>
       <el-row>
-        <el-table v-if="zoomTable" :data="zoomTable" stripe style="width: 100%">
+        <el-table v-if="zoomData" :data="zoomData" stripe style="width: 100%">
+          <el-table-column type="expand">
+            <template slot-scope="expand">
+              <el-button-group v-if="expand.row.slices.length">
+                <el-button size="mini" type="info" @click="createLines(slice)" v-for="slice in expand.row.slices" :key="slice">{{slice}}</el-button>
+              </el-button-group>
+            </template>
+          </el-table-column>
           <el-table-column
-            prop="transTime"
+            prop="range"
             label="端到端传输耗时（ms）"
             align="left" width="180px">
           </el-table-column>
           <el-table-column
             prop="slices"
             label="数据包序号片段详情"
-            align="left">
-            <template slot-scope="scope">
+            align="left"
+            width="auto">
+            <template slot-scope="summary">
               <div slot="reference">
-                <el-button-group v-if="scope.row.slices.length <= 100">
-                  <el-button size="mini" type="info" @click="createLines(slice)" v-for="slice in scope.row.slices" :key="slice">{{slice}}</el-button>
+                <el-button-group v-if="summary.row.slices.length <= 10">
+                  <el-button size="mini" type="info" @click="createLines(slice)" v-for="slice in summary.row.slices" :key="slice">{{slice}}</el-button>
                 </el-button-group>
-                <el-button v-else size="mini" type="info">数据内容太多无法显示</el-button>
+                <el-button v-else size="mini" type="info">数据内容太多无法完整显示</el-button>
               </div>
             </template>
           </el-table-column>
@@ -137,11 +145,10 @@
     data() {
       return {
         carouselHeight: '1200px',
-        zoomTable: null,
       }
     },
     props:[
-      "tablesData", "optionsData", "zoomData"
+      "tablesData", "optionsData", "zoomData", "max", "min"
     ],
     watch: {
       // optionsData: function () {
@@ -156,9 +163,7 @@
         if (this.optionsData) {
           // console.log(this.$refs.carousel.$children[index]);
           // this.carouselHeight = this.$refs.carousel.$children[index].$el.offsetHeight + 'px';
-          if ('0' == activeName) {
-
-          } else if ('1' == activeName) {
+          if ('1' == activeName) {
             for (let i = 1; i <= this.optionsData.length; i++) {
               let option = this.optionsData[i];
               // console.log(option);
@@ -168,17 +173,6 @@
                 let subtext = option.subtext;
                 this.$high.chart(i.toString(), this.createPieChart(title, subtext, data));
               }
-            }
-          } else if ('2' == activeName) {
-            // console.log(this.optionsData[0].series);
-            if (this.zoomTable) {
-              this.zoomTable = null;
-            }
-            this.zoomTable = new Array();
-            for (let key in this.zoomData) {
-              let slices = this.zoomData[key];
-              let item = {"transTime":key, "slices":slices};
-              this.zoomTable.push(item);
             }
           }
         }
@@ -294,7 +288,7 @@
             formatter() {
               let extras = this.point.extras;
               let message = '<span>数据包ID：'+extras.packetId+'</span><br>' +
-                '    <span>AgentID：'+extras.pathId+'</span><br>' +
+                '    <span>AgentID：'+extras.associatesId+'</span><br>' +
                 '    <span>重复包：'+extras.repeat+'</span>';
               return message;
             }
