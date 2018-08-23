@@ -48,7 +48,7 @@
               <el-button type="primary" @click="getData">获取概要信息</el-button>
             </el-form-item>
           </el-form>
-          <SummaryView :tablesData="tablesData" :optionsData="optionsData" :zoomData="zoomData" :max="max" :min="min"/>
+          <SummaryView :summaryData="summaryData"/>
         </el-tab-pane>
       </el-tabs>
     </el-main>
@@ -68,10 +68,10 @@
         fullScreenLoading: false,
         reason: null,
         form: {
-          StartTime: new Date(2018, 7, 16, 9, 45, 37, 0),
+          StartTime: new Date(2018, 7, 21, 17, 19, 32, 0),
           // EndTime: new Date(2018, 6, 26, 19, 19, 59, 0),
-          EndTime: new Date(2018, 7, 16, 9, 47, 37, 0),
-          SuperSocketID: '2797919220570180263',
+          EndTime: new Date(2018, 7, 21, 17, 19, 35, 0),
+          SuperSocketID: '13287036489913929392',
           TransTime: 300,
           Limit: 500,
           Pagination: {
@@ -79,11 +79,7 @@
             Total: 0
           }
         },
-        tablesData: null,
-        optionsData: null,
-        zoomData: null,
-        max: 0,
-        min: 0
+        summaryData: null,
       }
     },
     watch: {
@@ -92,16 +88,21 @@
     methods: {
       getData() {
         let loading = Loading.service({fullscreen: true, text: "拼命的加载数据中..."});
+        this.summaryData = null;
         this.$http.post('/summary', {
           data: this.form,
-        }).then(({data: {time, status, total, tables, options, zoom, max, min}}) => {
-          if (tables != null && tables.length > 0) {
-            this.tablesData = tables;
-            this.optionsData = options;
-            this.zoomData = zoom;
-            this.max = max;
-            this.min = min;
+        // }).then(({data: {time, status, total, tables, options, zoom, max, min}}) => {
+        }).then((res) => {
+          if (res.data.length > 0) {
+              this.summaryData = res.data;
           }
+          // if (tables != null && tables.length > 0) {
+          //   this.tablesData = tables;
+          //   this.optionsData = options;
+          //   this.zoomData = zoom;
+          //   this.max = max;
+          //   this.min = min;
+          // }
           loading.close();
         }).catch(error => {
           loading.close();

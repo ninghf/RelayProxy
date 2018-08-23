@@ -10,61 +10,126 @@
     <el-carousel-item label="数据包丢包统计">
       <el-row>
         <el-col :span="24">
-          <el-table v-if="tablesData" :data="tablesData[0].items" stripe style="width: 100%">
-            <el-table-column
-              label="目标"
-              align="left"
-              width="120">
-              <!--Table-column Scoped Slot 自定义列的内容，参数为 { row, column, $index }-->
-              <template slot-scope="scope">
-                <el-popover trigger="hover" placement="bottom">
-                  <span>associatesId: {{ scope.row.tooltips }}</span>
-                  <!--reference	触发 Popover 显示的 HTML 元素-->
-                  <div slot="reference">
-                    <el-tag size="medium">{{ scope.row.stat }}</el-tag>
-                  </div>
-                </el-popover>
+          <el-table v-if="summaryData" :data="summaryData"
+                    :row-class-name="tableRowClassName"
+                    @expand-change="expandChange"
+                    style="width: 100%">
+            <el-table-column type="expand">
+              <template slot-scope="expand">
+                <el-table v-if="expand.row.tables" :data="expand.row.tables[0].items" stripe style="width: 100%">
+                  <el-table-column
+                    label="目标"
+                    align="left"
+                    width="120">
+                    <!--Table-column Scoped Slot 自定义列的内容，参数为 { row, column, $index }-->
+                    <template slot-scope="scope">
+                      <el-popover trigger="hover" placement="bottom">
+                        <span>associatesId: {{ scope.row.tooltips }}</span>
+                        <!--reference	触发 Popover 显示的 HTML 元素-->
+                        <div slot="reference">
+                          <el-tag size="medium">{{ scope.row.stat }}</el-tag>
+                        </div>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="total"
+                    label="实际发/收包"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="lossRate"
+                    label="原始丢包率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="sendRate"
+                    label="发包丢包率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="nonRepeatTotal"
+                    label="业务发/收包"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="fecLossRate"
+                    label="纠错丢包率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="fecRate"
+                    label="纠错效率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="repeatSpendRate"
+                    label="重传成本率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                  <el-table-column
+                    prop="repeatWasteRate"
+                    label="重传浪费率"
+                    align="left" :render-header="renderTableHeader">
+                  </el-table-column>
+                </el-table>
               </template>
             </el-table-column>
             <el-table-column
-              prop="total"
+              label="时间段"
+              align="center"
+              width="auto">
+              <template slot-scope="scope">
+                <el-tag size="medium">{{ scope.row.startTime }} - {{ scope.row.endTime }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="数据包范围"
+              align="center"
+              width="200">
+              <template slot-scope="scope">
+                <el-tag size="medium">{{ scope.row.min }} - {{ scope.row.max }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
               label="实际发/收包"
-              align="left" :render-header="renderTableHeader">
+              align="center"
+              width="120">
+              <template slot-scope="scope">
+                {{ scope.row.tables[0].items[0].total }}
+              </template>
             </el-table-column>
             <el-table-column
-              prop="lossRate"
               label="原始丢包率"
-              align="left" :render-header="renderTableHeader">
+              align="center"
+              width="120">
+              <template slot-scope="scope">
+                {{ scope.row.tables[0].items[0].lossRate }}
+              </template>
             </el-table-column>
             <el-table-column
-              prop="sendRate"
               label="发包丢包率"
-              align="left" :render-header="renderTableHeader">
+              align="center"
+              width="120">
+              <template slot-scope="scope">
+                {{ scope.row.tables[0].items[0].sendRate }}
+              </template>
             </el-table-column>
             <el-table-column
-              prop="nonRepeatTotal"
               label="业务发/收包"
-              align="left" :render-header="renderTableHeader">
+              align="center"
+              width="120">
+              <template slot-scope="scope">
+                {{ scope.row.tables[0].items[0].nonRepeatTotal }}
+              </template>
             </el-table-column>
             <el-table-column
-              prop="fecLossRate"
               label="纠错丢包率"
-              align="left" :render-header="renderTableHeader">
-            </el-table-column>
-            <el-table-column
-              prop="fecRate"
-              label="纠错效率"
-              align="left" :render-header="renderTableHeader">
-            </el-table-column>
-            <el-table-column
-              prop="repeatSpendRate"
-              label="重传成本率"
-              align="left" :render-header="renderTableHeader">
-            </el-table-column>
-            <el-table-column
-              prop="repeatWasteRate"
-              label="重传浪费率"
-              align="left" :render-header="renderTableHeader">
+              align="center"
+              width="120">
+              <template slot-scope="scope">
+                {{ scope.row.tables[0].items[0].fecLossRate }}
+              </template>
             </el-table-column>
           </el-table>
         </el-col>
@@ -145,10 +210,14 @@
     data() {
       return {
         carouselHeight: '1200px',
+        optionsData: null,
+        zoomData: null,
+        max: 0,
+        min: 0
       }
     },
     props:[
-      "tablesData", "optionsData", "zoomData", "max", "min"
+      "summaryData"
     ],
     watch: {
       // optionsData: function () {
@@ -328,6 +397,24 @@
         };
         return chart;
       },
+      tableRowClassName({row, rowIndex}) {
+        let lossRate = row.tables[0].items[0].lossRate;
+        if (lossRate && lossRate.indexOf("%") > 0) {
+          lossRate = parseInt(lossRate.substring(0, lossRate.indexOf("%")));
+          if (lossRate > 0) {
+            return 'warning-row';
+          } else if (lossRate == 0) {
+            return 'success-row';
+          }
+        }
+        return '';
+      },
+      expandChange(row, expandedRows) {
+        //this.optionsData = row.options;
+        //this.zoomData = row.zoom;
+        this.max = row.max;
+        this.min = row.min;
+      },
       renderTableHeader(h, {column, $index}) {
         // return (<el-tooltip class="item" effect="dark" placement="top">
         //   <div slot="content"><p>实际发包: 实际发包总数</p>
@@ -408,6 +495,18 @@
     border-color: #409eff;
     border-radius: 20px;
     padding: 12px 23px;
+  }
+
+  .el-table .error-row {
+    background: #F56C6C;
+  }
+
+  .el-table .warning-row {
+    background: #E6A23C;
+  }
+
+  .el-table .success-row {
+    background: #67C23A;
   }
 
 </style>
