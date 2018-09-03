@@ -161,7 +161,7 @@
     <el-carousel-item label="数据包落点追踪">
       <el-row>
         <el-button type="info">数据包范围 {{min}} - {{max}}</el-button>
-        <el-button type="warning">下面数据包没有展示失败数据包</el-button>
+        <!--<el-button type="warning">下面数据包没有展示失败数据包</el-button>-->
       </el-row>
       <el-row>
         <el-table v-if="zoomData" :data="zoomData" stripe style="width: 100%">
@@ -205,6 +205,8 @@
 </template>
 
 <script>
+  import dateUtil from 'element-ui/src/utils/date';
+  import { Loading } from 'element-ui';
   export default {
     name: "SummaryView",
     data() {
@@ -213,36 +215,59 @@
         optionsData: null,
         zoomData: null,
         max: 0,
-        min: 0
+        min: 0,
+        query: false
       }
     },
     props:[
-      "summaryData"
+      "summaryData", "detailData"
     ],
     watch: {
-      // optionsData: function () {
-      //   this.createEcharts();
-      // }
+      optionsData: function () {
+        this.createChart();
+      },
+      'detailData.StartTime': function (val, oldVal) {
+        // console.log("新值" + val);
+        // console.log("旧值" + oldVal);
+        if (val != oldVal) {
+          this.query = true;
+        }
+      },
+      'detailData.EndTime': function (val, oldVal) {
+        // console.log("新值" + val);
+        // console.log("旧值" + oldVal);
+        if (val != oldVal) {
+          this.query = true;
+        }
+      }
     },
     mounted() {
 
     },
     methods: {
       changeCarousel(activeName, index) {
-        if (this.optionsData) {
-          // console.log(this.$refs.carousel.$children[index]);
-          // this.carouselHeight = this.$refs.carousel.$children[index].$el.offsetHeight + 'px';
-          if ('1' == activeName) {
-            for (let i = 1; i <= this.optionsData.length; i++) {
-              let option = this.optionsData[i];
-              // console.log(option);
-              if (option) {
-                let title = option.title;
-                let data = option.series[0].data;
-                let subtext = option.subtext;
-                this.$high.chart(i.toString(), this.createPieChart(title, subtext, data));
-              }
-            }
+        // console.log("是否拉取新的数据" + this.query);
+        if (('1' == activeName || '2' == activeName) && this.query) {
+          this.getData();
+          this.query = false;
+        }
+        // if (this.optionsData) {
+        //   // console.log(this.$refs.carousel.$children[index]);
+        //   // this.carouselHeight = this.$refs.carousel.$children[index].$el.offsetHeight + 'px';
+        //   if ('1' == activeName) {
+        //
+        //   }
+        // }
+      },
+      createChart() {
+        for (let i = 1; i <= this.optionsData.length; i++) {
+          let option = this.optionsData[i];
+          // console.log(option);
+          if (option) {
+            let title = option.title;
+            let data = option.series[0].data;
+            let subtext = option.subtext;
+            this.$high.chart(i.toString(), this.createPieChart(title, subtext, data));
           }
         }
       },
@@ -404,16 +429,53 @@
           if (lossRate > 0) {
             return 'warning-row';
           } else if (lossRate == 0) {
-            return 'success-row';
+            // return 'success-row';
+            return '';
           }
         }
         return '';
       },
       expandChange(row, expandedRows) {
-        //this.optionsData = row.options;
-        //this.zoomData = row.zoom;
-        this.max = row.max;
-        this.min = row.min;
+        this.detailData.StartTime = dateUtil.parse(row.startTime, 'yyyy-MM-dd HH:mm:ss.SSS').getTime();
+        this.detailData.EndTime = dateUtil.parse(row.endTime, 'yyyy-MM-dd HH:mm:ss.SSS').getTime();
+      },
+      getData() {
+        let loading = Loading.service({fullscreen: true, text: "拼命的加载数据中..."});
+        this.$http.post('/detail', {
+          data: this.detailData,
+          }).then(({data: {time, status, total, tables, options, zoom, max, min}}) => {
+          if (tables != null && tables.length > 0) {
+            this.optionsData = options;
+            this.zoomData = zoom;
+            this.max = max;
+            this.min = min;
+          }
+          loading.close();
+        }).catch(error => {
+          loading.close();
+          if (error.response) {
+            if (error.response.status != 200) {
+              this.reason = error.response.status
+            }
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            if (error.request.status != 200) {
+              this.reason = '访问服务端异常'
+            }
+            console.log(error.request);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+          }
+          console.log(error.config);
+        });
       },
       renderTableHeader(h, {column, $index}) {
         // return (<el-tooltip class="item" effect="dark" placement="top">

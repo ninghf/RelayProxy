@@ -48,7 +48,7 @@
               <el-button type="primary" @click="getData">获取概要信息</el-button>
             </el-form-item>
           </el-form>
-          <SummaryView :summaryData="summaryData"/>
+          <SummaryView :summaryData="summaryData" :detailData="form"/>
         </el-tab-pane>
       </el-tabs>
     </el-main>
@@ -68,10 +68,10 @@
         fullScreenLoading: false,
         reason: null,
         form: {
-          StartTime: new Date(2018, 7, 21, 17, 19, 32, 0),
+          StartTime: new Date(2018, 8, 3, 15, 20, 0, 0),
           // EndTime: new Date(2018, 6, 26, 19, 19, 59, 0),
-          EndTime: new Date(2018, 7, 21, 17, 19, 35, 0),
-          SuperSocketID: '13287036489913929392',
+          EndTime: new Date(2018, 8, 3, 15, 53, 22, 0),
+          SuperSocketID: '8589523426833347486',
           TransTime: 300,
           Limit: 500,
           Pagination: {
